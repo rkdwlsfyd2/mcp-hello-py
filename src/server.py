@@ -21,25 +21,6 @@ from mcp.server.transport_security import TransportSecuritySettings
 # ======================================================================
 # FastMCP 서버 생성
 # ======================================================================
-def is_weather_query(text: str) -> bool:
-    keywords = ["날씨", "기온", "비와?", "비 오나", "더워?", "추워?", "오늘 날씨"]
-    return any(k in text for k in keywords)
-
-def summarize_weather(json_data):
-    try:
-        item = json_data["response"]["body"]["items"]["item"][0]
-
-        temp = item.get("th3", "알 수 없음")  # 기온
-        humid = item.get("rhm", "알 수 없음")  # 습도
-        sky = item.get("sky", "알 수 없음")   # 하늘상태
-        wind = item.get("ws", "알 수 없음")   # 풍속
-
-        return (
-            f"현재 기온은 {temp}℃, 습도는 {humid}% 입니다. "
-            f"하늘 상태는 {sky}, 풍속은 {wind}m/s 입니다."
-        )
-    except:
-        return "날씨 정보를 정상적으로 불러오지 못했습니다."
 
 
 mcp = FastMCP(
@@ -160,23 +141,6 @@ def greeting_message(recipient: str) -> str:
 # ======================================================================
 # Main Entry (Cloud Run은 무조건 HTTP Stream 모드로 실행)
 # ======================================================================
-@mcp.arrival_message()
-def handle_user_message(message: str):
-    # 1) 날씨 질문인지 확인
-    if is_weather_query(message):
-        import datetime
-        
-        today = datetime.datetime.now().strftime("%Y%m%d")
-        hour = int(datetime.datetime.now().strftime("%H"))
-
-        # 2) 도구 실행
-        result = get_tour_weather_forecast(today, hour, 1)
-
-        # 3) 자연어로 요약하여 반환
-        return summarize_weather(result)
-
-    # 날씨 질문이 아니라면 기존 인사 사용
-    return say_hello(message)
 
 
 def main():
