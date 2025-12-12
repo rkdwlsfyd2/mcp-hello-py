@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """
-MCP Hello Server + 공공데이터 관광코스 날씨조회 Tool (안정통합버전)
+MCP Hello Server + 공공데이터 관광코스 날씨조회 Tool (최종 안정 버전)
 
-- FastMCP 서버
-- Cloud Run 8080 포트 HTTP Stream 정상 지원
-- 기본 인사 기능 + 복수 인사 기능
-- 공공데이터 관광코스 동네예보 Tool(get_tour_weather_forecast)
-- Resource / Prompt 완전 정상 작동
+- FastMCP 서버 완전 구성
+- Cloud Run 포트(8080) 정상 작동
+- 인사 기능 2개 + 날씨 조회 Tool 포함
+- A2A Agent에서 Tool 목록 자동 인식 (expose_openapi=True)
 """
 
 import os
@@ -26,6 +25,7 @@ mcp = FastMCP(
     instructions="한국어 인사 및 관광코스 날씨 조회 기능을 제공하는 MCP 서버입니다.",
     stateless_http=True,
     json_response=True,
+    expose_openapi=True,       # ★ A2A Agent에 Tool 자동 노출 (중요!)
     host="0.0.0.0",
     transport_security=TransportSecuritySettings(
         enable_dns_rebinding_protection=False,
@@ -51,6 +51,7 @@ def say_hello_multiple(names: list[str]) -> str:
         return "이름이 없습니다."
     return "\n".join([f"• {say_hello(name)}" for name in names])
 
+
 # ======================================================================
 # 공공데이터 관광코스 동네예보 Tool
 # ======================================================================
@@ -67,7 +68,7 @@ def get_tour_weather_forecast(current_date: str, hour: int, course_id: int):
 
     base_url = "https://apis.data.go.kr/1360000/TourStnInfoService1/getTourStnVilageFcst1"
 
-    # 공공데이터 서비스 키 (반드시 URL 인코딩)
+    # 공공데이터 서비스 키 (URL 인코딩 필요)
     service_key = "2b724c413f0e2567470128712f58b426b5be1e350d4956e346d9eabf1260a07d"
     encoded_key = urllib.parse.quote(service_key)
 
@@ -94,6 +95,7 @@ def get_tour_weather_forecast(current_date: str, hour: int, course_id: int):
     except Exception:
         return {"error": "JSON 변환 실패", "raw": response.text}
 
+
 # ======================================================================
 # Resource
 # ======================================================================
@@ -113,6 +115,7 @@ def get_readme() -> str:
 기온, 습도, 하늘상태 등의 정보를 반환합니다.
 """
 
+
 # ======================================================================
 # Prompt
 # ======================================================================
@@ -130,8 +133,9 @@ def greeting_message(recipient: str) -> str:
 - 3~5 문장
 """
 
+
 # ======================================================================
-# Main Entry (Cloud Run은 무조건 HTTP Stream 모드로 실행)
+# Main Entry (Cloud Run은 반드시 이 모드)
 # ======================================================================
 
 def main():
