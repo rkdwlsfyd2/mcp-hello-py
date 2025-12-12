@@ -242,3 +242,48 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+import requests
+import urllib.parse
+
+@mcp.tool()
+def get_tour_weather_forecast(current_date: str, hour: int, course_id: int):
+    """
+    관광코스별 동네예보를 조회합니다.
+
+    Args:
+        current_date (str): 조회 날짜 (YYYYMMDD)
+        hour (int): 조회 시간 (0~23)
+        course_id (int): 관광 코스 ID
+
+    Returns:
+        dict: 동네예보 조회 결과(JSON)
+    """
+
+    base_url = "https://apis.data.go.kr/1360000/TourStnInfoService1/getTourStnVilageFcst1"
+
+    # 네가 발급받은 인증키 (URL Encode 필요)
+    service_key = "2b724c413f0e2567470128712f58b426b5be1e350d4956e346d9eabf1260a07d"
+    encoded_key = urllib.parse.quote(service_key)
+
+    params = {
+        "ServiceKey": encoded_key,
+        "pageNo": 1,
+        "numOfRows": 10,
+        "dataType": "JSON",
+        "CURRENT_DATE": current_date,
+        "HOUR": hour,
+        "COURSE_ID": course_id
+    }
+
+    response = requests.get(base_url, params=params)
+
+    if response.status_code != 200:
+        return {"error": f"API 호출 실패: {response.status_code}", "details": response.text}
+
+    try:
+        return response.json()
+    except:
+        return {"error": "JSON 변환 실패", "raw": response.text}
+
