@@ -140,13 +140,10 @@ def greeting_message(recipient: str) -> str:
 # ======================================================================
 
 def main():
-    """Cloud Run 또는 STDIO 모드 선택 실행"""
-    if "--http-stream" in sys.argv:
-        port = int(os.getenv("PORT", "8080"))
-        mcp.settings.port = port
-        mcp.run(transport="streamable-http")
-    else:
-        mcp.run(transport="stdio")
+    port = int(os.environ.get("PORT", 8080))
+    mcp.settings.port = port
+    mcp.run(transport="streamable-http")
+
 
 
 if __name__ == "__main__":
