@@ -23,5 +23,6 @@ EXPOSE 8080
 ENV PORT=8080
 
 # 서버 시작 (기본: HTTP Stream 모드)
-CMD ["python", "server.py", "--http-stream"]
+CMD ["python", "src/server.py", "--http-stream"]
+
 
