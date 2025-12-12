@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os
-import requests          # 🔹 위로 올리기
-import urllib.parse      # 🔹 위로 올리기
+import requests        
+import urllib.parse      
 
 from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
@@ -26,7 +26,7 @@ def say_hello(name: str) -> str:
 def say_hello_multiple(names: list[str]) -> str:
     ...
 
-# ---------- 🔹 새로 추가한 날씨 도구 ----------
+# ----------  새로 추가한 날씨 도구 ----------
 @mcp.tool()
 def get_tour_weather_forecast(current_date: str, hour: int, course_id: int):
     """
